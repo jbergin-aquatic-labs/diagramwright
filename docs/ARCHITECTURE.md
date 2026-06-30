@@ -64,7 +64,7 @@ The visual graph in `diagramStore` drives everything else: any mutation re-runs 
 | Sync Bridge | `mcp/src/bridge.ts` | Local HTTP + SSE server (default port `4319`): `GET/PUT /diagram`, `GET /events`, `/health`. |
 | Entrypoint | `mcp/src/index.ts` | Boots the hub, starts the bridge, connects the MCP stdio transport. |
 
-The MCP server is launched by the agent client (e.g. Cursor, via `.cursor/mcp.json`). It speaks the MCP protocol over **stdio**, while the embedded bridge serves the browser over HTTP/SSE from the same process.
+The MCP server is launched by the agent client (e.g. Cursor, via `.cursor/mcp.json`). It speaks the MCP protocol over **stdio** by default, while the embedded bridge serves the browser over HTTP/SSE from the same process. For headless/containerized deployments it can instead expose MCP over **Streamable HTTP** (`MCP_TRANSPORT=http`, endpoint `/mcp`), so networked agents can connect without a local process.
 
 ## Data Flow
 
@@ -122,6 +122,17 @@ diagramwright/
 
 - **Browser:** the diagram is auto-saved to `localStorage` (`diagramwright:diagram`) and restored on load. Theme is stored under `diagramwright:theme`.
 - **MCP:** `DiagramHub` is in-memory by default. Set `DIAGRAMWRIGHT_STATE_FILE` to persist diagram JSON across server restarts.
+
+## Deployment
+
+The stack ships as two Docker images orchestrated by `docker-compose.yml`:
+
+| Service | Image | Ports | Notes |
+| --- | --- | --- | --- |
+| `web` | Next.js standalone build | 3000 | Browser app. |
+| `mcp` | MCP server | 4319 (sync bridge), 4320 (`/mcp` HTTP) | Runs headless with `MCP_TRANSPORT=http`. |
+
+Both services use `restart: unless-stopped` and `init: true` for crash recovery and correct signal handling. Diagram state persists to the `diagram-data` volume (`DIAGRAMWRIGHT_STATE_FILE=/data/diagram.json`). The browser-reachable bridge URL is baked at build time via the `NEXT_PUBLIC_DIAGRAMWRIGHT_BRIDGE_URL` build arg.
 
 ## Notes
 

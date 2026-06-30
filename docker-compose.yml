@@ -7,6 +7,7 @@ services:
       context: ./mcp
     image: diagramwright-mcp:latest
     restart: unless-stopped
+    init: true
     environment:
       MCP_TRANSPORT: http
       DIAGRAMWRIGHT_BRIDGE_PORT: "4319"
@@ -17,12 +18,7 @@ services:
       - "4320:4320"
     volumes:
       - diagram-data:/data
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4319/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    # Healthcheck is defined in mcp/Dockerfile (node-based, no extra tooling).
 
   # Next.js web app (production standalone build).
   web:
@@ -34,17 +30,13 @@ services:
         NEXT_PUBLIC_DIAGRAMWRIGHT_BRIDGE_URL: ${BRIDGE_URL:-http://localhost:4319}
     image: diagramwright-web:latest
     restart: unless-stopped
+    init: true
     ports:
       - "3000:3000"
     depends_on:
       mcp:
         condition: service_started
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 20s
+    # Healthcheck is defined in Dockerfile (node-based, no extra tooling).
 
 volumes:
   diagram-data:

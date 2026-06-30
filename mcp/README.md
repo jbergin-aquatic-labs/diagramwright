@@ -26,6 +26,41 @@ npm run build
 
 This produces `dist/index.js`, the server entrypoint.
 
+## Transports
+
+The server selects its transport via `MCP_TRANSPORT`:
+
+| `MCP_TRANSPORT` | Behavior |
+| --- | --- |
+| `stdio` (default) | Sync bridge + MCP over stdio (for Cursor launching the process locally). |
+| `http` | Sync bridge + MCP over **Streamable HTTP** at `/mcp` (headless/networked, e.g. Docker). |
+| `both` | Sync bridge + stdio + HTTP. |
+
+The HTTP/SSE sync bridge always runs regardless of transport.
+
+## Docker
+
+The repo's root `docker-compose.yml` runs this server headlessly (`MCP_TRANSPORT=http`) alongside the web app, with auto-restart, healthchecks, and a persistent volume:
+
+```bash
+docker compose up -d --build   # from the repo root
+```
+
+Or build/run just this image:
+
+```bash
+docker build -t diagramwright-mcp ./mcp
+docker run -d --restart unless-stopped --init \
+  -p 4319:4319 -p 4320:4320 -v diagram-data:/data \
+  diagramwright-mcp
+```
+
+Agents then connect over HTTP:
+
+```json
+{ "mcpServers": { "diagramwright": { "url": "http://localhost:4320/mcp" } } }
+```
+
 ### Register with Cursor
 
 A workspace config is already provided at `.cursor/mcp.json`:
@@ -93,5 +128,7 @@ No configuration is needed as long as the bridge runs on `http://localhost:4319`
 
 | Variable | Default | Description |
 | --- | --- | --- |
+| `MCP_TRANSPORT` | `stdio` | `stdio`, `http`, or `both`. |
 | `DIAGRAMWRIGHT_BRIDGE_PORT` | `4319` | Port for the HTTP/SSE bridge. |
+| `MCP_HTTP_PORT` | `4320` | Port for the Streamable HTTP MCP endpoint (when enabled). |
 | `DIAGRAMWRIGHT_STATE_FILE` | _(unset)_ | Optional path to persist diagram JSON across restarts. |

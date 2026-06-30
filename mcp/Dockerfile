@@ -1,16 +1,16 @@
 # syntax=docker/dockerfile:1
 
 # ---- Build ----
-FROM node:22-alpine AS build
+FROM node:22-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install --no-audit --no-fund
 COPY tsconfig.json ./
 COPY src ./src
 RUN npm run build
 
 # ---- Runtime ----
-FROM node:22-alpine AS runtime
+FROM node:22-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
@@ -21,7 +21,7 @@ ENV MCP_HTTP_PORT=4320
 ENV DIAGRAMWRIGHT_STATE_FILE=/data/diagram.json
 
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
 COPY --from=build /app/dist ./dist
 
 RUN mkdir -p /data && chown -R node:node /data
@@ -31,6 +31,6 @@ EXPOSE 4319 4320
 VOLUME ["/data"]
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:4319/health >/dev/null 2>&1 || exit 1
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.DIAGRAMWRIGHT_BRIDGE_PORT||4319)+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 CMD ["node", "dist/index.js"]

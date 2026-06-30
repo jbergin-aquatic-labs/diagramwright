@@ -95,6 +95,36 @@ npm run build
 npm start
 ```
 
+## Docker
+
+Ship the whole stack (web app + MCP server/sync bridge) headlessly with auto-restart:
+
+```bash
+docker compose up -d --build
+```
+
+| Service | Port | Purpose |
+| --- | --- | --- |
+| `web` | 3000 | Next.js app — open [http://localhost:3000](http://localhost:3000) |
+| `mcp` | 4319 | HTTP/SSE sync bridge (the browser connects here) |
+| `mcp` | 4320 | Streamable HTTP MCP endpoint (`/mcp`) for agents |
+
+- Both containers use `restart: unless-stopped` and `init: true`, so they recover automatically from crashes.
+- The diagram is persisted to a named volume (`diagram-data` → `/data/diagram.json`), surviving restarts.
+- For a remote host, bake the browser-reachable bridge URL at build time:
+
+```bash
+BRIDGE_URL=http://your-host:4319 docker compose up -d --build
+```
+
+Connect an agent to the containerized server by adding an HTTP MCP entry:
+
+```json
+{ "mcpServers": { "diagramwright": { "url": "http://localhost:4320/mcp" } } }
+```
+
+See [`mcp/README.md`](./mcp/README.md) for transports and configuration.
+
 ## How It Works
 
 The diagram (nodes, edges, direction, title) lives in a Zustand store and is the single source of truth. React Flow renders a view of that state and reports interactions (drag, connect, select, delete) back to the store. On every change, `graphToMermaid` regenerates the Mermaid flowchart text shown in the output panel and rendered in the preview.
