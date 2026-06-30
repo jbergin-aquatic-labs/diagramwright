@@ -32,38 +32,51 @@ Build diagrams on a canvas, then copy the generated Mermaid structure to your cl
 - System / light / dark theme toggle
 - Diagram auto-persisted to `localStorage`
 
+## Documentation
+
+- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — system overview, component responsibilities, and data flow (the canonical architecture doc).
+- [`mcp/README.md`](./mcp/README.md) — MCP server tools, sync bridge API, and setup.
+
 ## Project Structure
 
 ```txt
-src/
-  app/
-    layout.tsx          # Root layout, theme no-flash script, ThemeProvider
-    page.tsx            # Three-panel layout, hydration gate
-    globals.css         # Tailwind v4 + theme tokens + dark variant
-  components/
-    ThemeProvider.tsx
-    canvas/
-      Toolbar.tsx       # Top bar: brand, title, theme toggle
-      Sidebar.tsx       # Node palette, direction, templates
-      DiagramCanvas.tsx # React Flow integration
-      CustomNode.tsx    # Shape-styled node renderer + inline editing
-      Inspector.tsx     # Selected node/edge editor
-      MermaidOutput.tsx # Generated syntax + copy
-      MermaidPreview.tsx# Rendered Mermaid preview
-      OutputPanel.tsx   # Code/Preview tabs
-  lib/
-    clipboard.ts
-    mermaid/
-      graphToMermaid.ts
-      sanitizeMermaidId.ts
-    graph/
-      nodeTypes.ts      # Node kind metadata (icons, labels, hints)
-      defaultNodes.ts   # Example + empty diagrams
-  store/
-    diagramStore.ts     # Diagram state + persistence
-    themeStore.ts       # Theme state + persistence
-  types/
-    diagram.ts          # Core data model
+diagramwright/
+  src/
+    app/
+      layout.tsx          # Root layout, theme no-flash script, ThemeProvider
+      page.tsx            # Three-panel layout, hydration gate
+      globals.css         # Tailwind v4 + theme tokens + dark variant
+    components/
+      ThemeProvider.tsx
+      CollabProvider.tsx  # Syncs the store with the MCP bridge (SSE + PUT)
+      canvas/
+        Toolbar.tsx       # Top bar: brand, title, theme toggle, sync badge
+        Sidebar.tsx       # Node palette, direction, templates
+        DiagramCanvas.tsx # React Flow integration
+        CustomNode.tsx    # Shape-styled node renderer + inline editing
+        Inspector.tsx     # Selected node/edge editor
+        MermaidOutput.tsx # Generated syntax + copy
+        MermaidPreview.tsx# Rendered Mermaid preview
+        OutputPanel.tsx   # Code/Preview tabs
+    lib/
+      clipboard.ts
+      mermaid/
+        graphToMermaid.ts
+        sanitizeMermaidId.ts
+      graph/
+        nodeTypes.ts      # Node kind metadata (icons, labels, hints)
+        defaultNodes.ts   # Example (app architecture) + empty diagrams
+      collab/
+        config.ts         # Sync bridge URL
+    store/
+      diagramStore.ts     # Diagram state + persistence
+      themeStore.ts       # Theme state + persistence
+      collabStore.ts      # Live connection status
+    types/
+      diagram.ts          # Core data model
+  mcp/                    # MCP server + HTTP/SSE sync bridge
+  docs/
+    ARCHITECTURE.md       # Canonical architecture document
 ```
 
 ## Development

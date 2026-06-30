@@ -1,0 +1,27 @@
+---
+alwaysApply: true
+---
+# Architecture Documentation (Diagramwright)
+
+The canonical architecture document for this project is **`docs/ARCHITECTURE.md`**.
+(This overrides the generic `ARCHITECTURE.md` path referenced by the shared
+`doc-automation` rule.)
+
+## When to update `docs/ARCHITECTURE.md`
+Update it when changing:
+- Directory structure or adding/removing modules
+- Core component responsibilities (web UI, stores, MCP server, sync bridge)
+- Data flow between components (local editing loop or agent collaboration loop)
+- Technology stack or dependencies
+- The MCP tool/resource surface or the HTTP/SSE bridge contract
+
+## Keep in sync
+- The embedded Mermaid **System Overview** diagram in `docs/ARCHITECTURE.md`
+  mirrors the app's built-in example diagram in
+  `src/lib/graph/defaultNodes.ts` (`EXAMPLE_DIAGRAM`). When one changes,
+  update the other.
+- Link new top-level docs from `README.md`.
+
+## Style
+- Concise but comprehensive; prefer tables and code blocks over prose.
+- Only factual, implementation-based content — no placeholders or hypothetical dates.
