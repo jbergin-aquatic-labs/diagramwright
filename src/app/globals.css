@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/* Manual dark mode via a `.dark` class on <html> (driven by the theme store). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --surface-muted: #f1f5f9;
+  --border: #e2e8f0;
+  --foreground: #0f172a;
+  --muted-foreground: #64748b;
+  --accent: #6366f1;
+  --accent-foreground: #ffffff;
+}
+
+.dark {
+  --background: #0b1120;
+  --surface: #111827;
+  --surface-muted: #1e293b;
+  --border: #293548;
+  --foreground: #e2e8f0;
+  --muted-foreground: #94a3b8;
+  --accent: #818cf8;
+  --accent-foreground: #0b1120;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* React Flow theming hooks */
+.react-flow__attribution {
+  display: none;
+}
+
+.dw-node-handle {
+  width: 9px !important;
+  height: 9px !important;
+  background: var(--accent) !important;
+  border: 2px solid var(--surface) !important;
+}
