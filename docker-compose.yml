@@ -1,0 +1,50 @@
+services:
+  # MCP server + sync bridge. Runs headlessly:
+  #  - 4319: HTTP/SSE sync bridge (the browser app connects here)
+  #  - 4320: Streamable HTTP MCP endpoint (/mcp) for agents
+  mcp:
+    build:
+      context: ./mcp
+    image: diagramwright-mcp:latest
+    restart: unless-stopped
+    environment:
+      MCP_TRANSPORT: http
+      DIAGRAMWRIGHT_BRIDGE_PORT: "4319"
+      MCP_HTTP_PORT: "4320"
+      DIAGRAMWRIGHT_STATE_FILE: /data/diagram.json
+    ports:
+      - "4319:4319"
+      - "4320:4320"
+    volumes:
+      - diagram-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4319/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Next.js web app (production standalone build).
+  web:
+    build:
+      context: .
+      args:
+        # The browser reaches the bridge on the host. Change to your host's
+        # address when deploying remotely (must be reachable from the browser).
+        NEXT_PUBLIC_DIAGRAMWRIGHT_BRIDGE_URL: ${BRIDGE_URL:-http://localhost:4319}
+    image: diagramwright-web:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      mcp:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  diagram-data:
