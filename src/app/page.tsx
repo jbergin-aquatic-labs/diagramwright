@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/canvas/Sidebar";
 import { DiagramCanvas } from "@/components/canvas/DiagramCanvas";
 import { Inspector } from "@/components/canvas/Inspector";
 import { OutputPanel } from "@/components/canvas/OutputPanel";
+import { CollabProvider } from "@/components/CollabProvider";
 
 const noopSubscribe = () => () => {};
 
@@ -24,6 +25,7 @@ export default function Home() {
 
   return (
     <div className="flex h-full flex-col">
+      {mounted && <CollabProvider />}
       <Toolbar />
       <div className="flex min-h-0 flex-1">
         <Sidebar />

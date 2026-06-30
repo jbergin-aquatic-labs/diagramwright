@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Diagramwright — Visual Mermaid Flowchart Editor",
+  title: "Diagramwright — Drag, drop, wire, copy Mermaid",
   description:
-    "Drag, drop, wire, and copy Mermaid. A local-first visual editor for Mermaid flowchart syntax.",
+    "Diagramwright is a local-first visual editor for building diagrams on a canvas and exporting them as Mermaid syntax. No accounts, no backend — the canvas is the source of truth.",
 };
 
 // Applies the persisted theme before paint to avoid a flash of the wrong theme.

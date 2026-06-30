@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "diagramwright": {
+      "command": "node",
+      "args": [
+        "/Users/jackbergin/Documents/develop/diagramwright/mcp/dist/index.js"
+      ],
+      "env": {
+        "DIAGRAMWRIGHT_BRIDGE_PORT": "4319"
+      }
+    }
+  }
+}

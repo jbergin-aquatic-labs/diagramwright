@@ -85,3 +85,17 @@ npm start
 ## How It Works
 
 The diagram (nodes, edges, direction, title) lives in a Zustand store and is the single source of truth. React Flow renders a view of that state and reports interactions (drag, connect, select, delete) back to the store. On every change, `graphToMermaid` regenerates the Mermaid flowchart text shown in the output panel and rendered in the preview.
+
+## Agent Collaboration (MCP)
+
+Diagramwright ships with an MCP server in [`mcp/`](./mcp) that lets AI agents read and edit the **live** diagram while you work in the browser. The server runs a small local HTTP/SSE "sync bridge"; the web app connects to it automatically and shows an **Agent sync** badge in the toolbar.
+
+```bash
+cd mcp
+npm install
+npm run build
+```
+
+Then register it with your MCP client (a ready-to-use Cursor config lives at `.cursor/mcp.json`) and reload. Agent edits stream onto the canvas in real time, and your edits are visible to the agent. See [`mcp/README.md`](./mcp/README.md) for the full tool list and configuration.
+
+This is the only networked piece of the app, and it's entirely local — no accounts, cloud, or external services.

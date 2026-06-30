@@ -1,8 +1,9 @@
 "use client";
 
-import { Workflow, Monitor, Sun, Moon } from "lucide-react";
+import { Workflow, Monitor, Sun, Moon, Bot } from "lucide-react";
 import { useDiagramStore } from "@/store/diagramStore";
 import { useThemeStore } from "@/store/themeStore";
+import { useCollabStore, type CollabStatus } from "@/store/collabStore";
 import type { Theme } from "@/types/diagram";
 
 const THEME_ICON: Record<Theme, typeof Monitor> = {
@@ -53,6 +54,7 @@ export function Toolbar() {
       </span>
 
       <div className="ml-auto flex items-center gap-2">
+        <CollabBadge />
         <button
           type="button"
           onClick={cycleTheme}
@@ -64,5 +66,52 @@ export function Toolbar() {
         </button>
       </div>
     </header>
+  );
+}
+
+const STATUS_META: Record<
+  CollabStatus,
+  { label: string; dot: string; title: string }
+> = {
+  connected: {
+    label: "Agent sync on",
+    dot: "bg-green-500",
+    title: "Connected to the MCP sync bridge. Agents can edit this diagram.",
+  },
+  connecting: {
+    label: "Connecting…",
+    dot: "bg-amber-500",
+    title: "Connecting to the MCP sync bridge.",
+  },
+  offline: {
+    label: "Agent sync off",
+    dot: "bg-slate-400",
+    title:
+      "MCP sync bridge not reachable. Start the diagramwright-mcp server to let agents collaborate.",
+  },
+};
+
+function CollabBadge() {
+  const status = useCollabStore((s) => s.status);
+  const agentActive = useCollabStore((s) => s.agentActive);
+  const meta = STATUS_META[status];
+
+  return (
+    <span
+      title={meta.title}
+      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-foreground"
+    >
+      {agentActive ? (
+        <>
+          <Bot size={14} className="text-accent" />
+          <span className="hidden md:inline">Agent editing…</span>
+        </>
+      ) : (
+        <>
+          <span className={`h-2 w-2 rounded-full ${meta.dot}`} />
+          <span className="hidden md:inline">{meta.label}</span>
+        </>
+      )}
+    </span>
   );
 }

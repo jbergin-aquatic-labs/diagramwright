@@ -40,6 +40,9 @@ type DiagramState = {
 
   loadExample: () => void;
   clear: () => void;
+
+  /** Replace the diagram from an external source (sync bridge / agent). */
+  applyRemoteDiagram: (diagram: Diagram) => void;
 };
 
 export const useDiagramStore = create<DiagramState>()(
@@ -181,6 +184,23 @@ export const useDiagramStore = create<DiagramState>()(
           selectedNodeId: null,
           selectedEdgeId: null,
         })),
+
+      applyRemoteDiagram: (diagram) =>
+        set((state) => {
+          const nodeIds = new Set(diagram.nodes.map((n) => n.id));
+          const edgeIds = new Set(diagram.edges.map((e) => e.id));
+          return {
+            diagram,
+            selectedNodeId:
+              state.selectedNodeId && nodeIds.has(state.selectedNodeId)
+                ? state.selectedNodeId
+                : null,
+            selectedEdgeId:
+              state.selectedEdgeId && edgeIds.has(state.selectedEdgeId)
+                ? state.selectedEdgeId
+                : null,
+          };
+        }),
     }),
     {
       name: "diagramwright:diagram",
