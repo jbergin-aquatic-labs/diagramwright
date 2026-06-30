@@ -41,6 +41,9 @@ type DiagramState = {
   loadExample: () => void;
   clear: () => void;
 
+  /** Load a diagram (e.g. imported from a file) as a local edit. */
+  loadDiagram: (diagram: Diagram) => void;
+
   /** Replace the diagram from an external source (sync bridge / agent). */
   applyRemoteDiagram: (diagram: Diagram) => void;
 };
@@ -181,6 +184,13 @@ export const useDiagramStore = create<DiagramState>()(
       clear: () =>
         set(() => ({
           diagram: structuredClone(EMPTY_DIAGRAM),
+          selectedNodeId: null,
+          selectedEdgeId: null,
+        })),
+
+      loadDiagram: (diagram) =>
+        set(() => ({
+          diagram: structuredClone(diagram),
           selectedNodeId: null,
           selectedEdgeId: null,
         })),
