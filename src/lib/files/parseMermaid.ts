@@ -171,11 +171,34 @@ function layout(
     indeg.set(e.target, (indeg.get(e.target) ?? 0) + 1);
   }
 
-  // Longest-path layering with a cycle-safe iteration cap.
+  // Identify back-edges (edges to a DFS ancestor) so cycles don't make the
+  // longest-path layering diverge. Without this, a sync loop like
+  // store -> collab -> store pushes nodes arbitrarily far apart.
+  const WHITE = 0;
+  const GRAY = 1;
+  const BLACK = 2;
+  const color = new Map<string, number>(nodes.map((n) => [n.id, WHITE]));
+  const backEdges = new Set<string>();
+  const visit = (u: string) => {
+    color.set(u, GRAY);
+    for (const v of targets.get(u) ?? []) {
+      const c = color.get(v);
+      if (c === GRAY) backEdges.add(`${u}\u0000${v}`);
+      else if (c === WHITE) visit(v);
+    }
+    color.set(u, BLACK);
+  };
+  for (const n of nodes) if (color.get(n.id) === WHITE) visit(n.id);
+
+  const forwardEdges = edges.filter(
+    (e) => !backEdges.has(`${e.source}\u0000${e.target}`),
+  );
+
+  // Longest-path layering over the acyclic forward edges (converges).
   const layer = new Map<string, number>(nodes.map((n) => [n.id, 0]));
   for (let pass = 0; pass < nodes.length; pass += 1) {
     let changed = false;
-    for (const e of edges) {
+    for (const e of forwardEdges) {
       const sl = layer.get(e.source) ?? 0;
       const tl = layer.get(e.target) ?? 0;
       if (tl < sl + 1) {
